@@ -1,5 +1,5 @@
 # AdventureWorksDW_Teradata
-A port of the originally published by Microsoft [AdventureWorksDW](https://github.com/dnoeth/AdventureWorksDW_Teradata) demo database to Teradata.
+A port of Microsoft's [AdventureWorksDW](https://github.com/dnoeth/AdventureWorksDW_Teradata) demo database to Teradata.
 
 ## Prerequisites
 
