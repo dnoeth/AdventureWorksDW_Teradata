@@ -51,7 +51,7 @@ or
 DELETE DATABASE AdventureWorksDW;
 ```
 
-When the database is not dropped the script will return ae error, but still run successfully:
+When the database is not dropped the script will return an error, but still run successfully:
 ```
 *** Failure 5612 A user, database, role, or zone with the specified name already exists.
 ```
