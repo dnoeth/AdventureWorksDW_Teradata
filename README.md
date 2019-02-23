@@ -3,15 +3,15 @@ A port of Microsoft's [AdventureWorksDW](https://github.com/Microsoft/sql-server
 
 ## Prerequisites
 
- 1. BTEQ must be installed on your client
- 2. The load user needs the **CREATE DATABASE** right in the target database.
+ 1. `BTEQ` must be installed on your client
+ 2. The load user needs the `CREATE DATABASE` right in the target database.
   
 ## Installing AdventureWorksDW using a Windows client
 
- 1. Download [AdventureWorksDW_Teradata.zip](https://github.com/dnoeth/AdventureWorksDW_Teradata/releases/download/v1.0/AdventureWorksDW_Teradata.zip) and extract the zip file to a folder, e.g. *`C:\Samples\AdventureWorksDW_Teradata`*.
- 2. Modify the file **`_logon.txt`** to match your target system. Optionally modify the database name.
+ 1. Download [AdventureWorksDW_Teradata.zip](https://github.com/dnoeth/AdventureWorksDW_Teradata/releases/download/v1.0/AdventureWorksDW_Teradata.zip) and extract the zip file to a folder, e.g. `C:\Samples\AdventureWorksDW_Teradata`.
+ 2. Modify the file `_logon.txt` to match your target system. Optionally modify the database name.
  
- 3. Open a *cmd* (or *PowerShell*) window, change to the folder and run the file **`_install.btq`** using bteq:
+ 3. Open a *cmd* (or *PowerShell*) window, change to the folder and run the file `_install.btq` using bteq:
 ```
 cd C:\Samples\AdventureWorksDW_Teradata
 bteq < _install.btq > _install.log
