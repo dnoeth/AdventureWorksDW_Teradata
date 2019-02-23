@@ -1,0 +1,1190 @@
+/*============================================================================
+  File:     _install.btq
+
+  Summary:  Creates the AdventureWorks 2014 Warehouse sample database.
+
+  Date:     Februar 23, 2014
+  
+  Teradata Version: 14.10/15/15.10/16/16.10/16.20+
+
+------------------------------------------------------------------------------
+  ### ORIGINAL LICENSE ###
+  
+  This file is part of the Microsoft SQL Server Code Samples.
+
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+
+  This source code is intended only as a supplement to Microsoft
+  Development Tools and/or on-line documentation.  See these other
+  materials for detailed information regarding Microsoft code samples.
+
+  All data in this database is ficticious.
+
+  THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+  KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+  PARTICULAR PURPOSE.
+============================================================================*/
+
+.SET SESSION TRANSACTION BTET;
+
+.SET ECHOREQ ERRORONLY;
+.SET MAXERROR 0;
+.SET TIMEMSG NONE;
+.SET QUIET ON ALL;
+
+-- logon and create database AdventureWorksDW
+.RUN FILE _logon.txt;
+
+-- Create tables
+
+CREATE SET TABLE AdventureWorksDWBuildVersion
+     (
+      DBVersion VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      VersionDate TIMESTAMP(0))
+PRIMARY INDEX ( DBVersion );
+
+INSERT INTO AdventureWorksDWBuildVersion VALUES ('12.0.1800', '2014-02-20 20:04:26');
+
+
+CREATE SET TABLE DimAccount
+     (
+      AccountKey INTEGER NOT NULL,
+      ParentAccountKey INTEGER,
+      AccountCodeAlternateKey INTEGER,
+      ParentAccountCodeAlternateKey INTEGER,
+      AccountDescription VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      AccountType VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      "Operator" VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      CustomMembers VARCHAR(300) CHARACTER SET LATIN NOT CASESPECIFIC,
+      ValueType VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      CustomMemberOptions VARCHAR(200) CHARACTER SET LATIN NOT CASESPECIFIC,
+PRIMARY KEY ( AccountKey ))
+;
+
+CREATE SET TABLE DimCurrency
+     (
+      CurrencyKey INTEGER NOT NULL,
+      CurrencyAlternateKey CHAR(3) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      CurrencyName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL,
+PRIMARY KEY ( CurrencyKey ))
+;
+
+CREATE SET TABLE DimCustomer
+     (
+      CustomerKey INTEGER NOT NULL,
+      GeographyKey INTEGER,
+      CustomerAlternateKey VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      "Title" VARCHAR(8) CHARACTER SET UNICODE NOT CASESPECIFIC COMPRESS ,
+      FirstName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      MiddleName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      LastName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      NameStyle BYTEINT COMPRESS 0 ,
+      BirthDate DATE FORMAT 'yyyy-mm-dd',
+      MaritalStatus CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('M','S'),
+      Suffix VARCHAR(10) CHARACTER SET UNICODE NOT CASESPECIFIC   ,
+      Gender CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC,
+      EmailAddress VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC COMPRESS USING TD_SYSFNLIB.TRANSUNICODETOUTF8 DECOMPRESS USING TD_SYSFNLIB.TRANSUTF8TOUNICODE ,
+      YearlyIncome NUMBER(18,4) COMPRESS (10000 ,20000 ,30000 ,40000 ,50000 ,60000 ,70000 ,80000 ,90000 ,100000 ,110000 ,120000 ,130000 ,140000 ,150000 ),
+      TotalChildren BYTEINT COMPRESS (0 ,1 ,2 ),
+      NumberChildrenAtHome BYTEINT COMPRESS (0 ,1 ,2 ),
+      EnglishEducation VARCHAR(40) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('Bachelors','Partial College','High School','Graduate Degree','Partial High School'),
+      SpanishEducation VARCHAR(40) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('Licenciatura','Estudios universitarios (en curso)','Educación secundaria','Estudios de postgrado','Educación secundaria (en curso)'),
+      FrenchEducation VARCHAR(40) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('Bac + 4','Baccalauréat','Bac + 2','Bac + 3','Niveau bac'),
+      EnglishOccupation VARCHAR(100) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('Professional','Skilled Manual','Management','Clerical','Manual'),
+      SpanishOccupation VARCHAR(100) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('Profesional','Obrero especializado','Gestión','Administrativo','Obrero'),
+      FrenchOccupation VARCHAR(100) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('Cadre','Technicien','Direction','Employé','Ouvrier'),
+      HouseOwnerFlag CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('0','1'),
+      NumberCarsOwned BYTEINT COMPRESS (0 ,1 ,2 ),
+      AddressLine1 VARCHAR(120) CHARACTER SET UNICODE NOT CASESPECIFIC COMPRESS USING TD_SYSFNLIB.TRANSUNICODETOUTF8 DECOMPRESS USING TD_SYSFNLIB.TRANSUTF8TOUNICODE ,
+      AddressLine2 VARCHAR(120) CHARACTER SET UNICODE NOT CASESPECIFIC COMPRESS USING TD_SYSFNLIB.TRANSUNICODETOUTF8 DECOMPRESS USING TD_SYSFNLIB.TRANSUTF8TOUNICODE ,
+      Phone VARCHAR(20) CHARACTER SET LATIN NOT CASESPECIFIC,
+      DateFirstPurchase DATE FORMAT 'yyyy-mm-dd',
+      CommuteDistance VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('0-1 Miles','2-5 Miles','1-2 Miles','5-10 Miles','10+ Miles'),
+PRIMARY KEY ( CustomerKey ))
+;
+
+CREATE SET TABLE DimDate
+     (
+      DateKey INTEGER NOT NULL,
+      FullDateAlternateKey DATE FORMAT 'yyyy-mm-dd',
+      DayNumberOfWeek BYTEINT,
+      EnglishDayNameOfWeek VARCHAR(10) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SpanishDayNameOfWeek VARCHAR(10) CHARACTER SET LATIN NOT CASESPECIFIC,
+      FrenchDayNameOfWeek VARCHAR(10) CHARACTER SET LATIN NOT CASESPECIFIC,
+      DayNumberOfMonth BYTEINT,
+      DayNumberOfYear SMALLINT,
+      WeekNumberOfYear BYTEINT,
+      EnglishMonthName VARCHAR(10) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SpanishMonthName VARCHAR(10) CHARACTER SET LATIN NOT CASESPECIFIC,
+      FrenchMonthName VARCHAR(10) CHARACTER SET LATIN NOT CASESPECIFIC,
+      MonthNumberOfYear BYTEINT,
+      CalendarQuarter SMALLINT,
+      CalendarYear CHAR(4) CHARACTER SET LATIN NOT CASESPECIFIC,
+      CalendarSemester SMALLINT,
+      FiscalQuarter SMALLINT,
+      FiscalYear CHAR(4) CHARACTER SET LATIN NOT CASESPECIFIC,
+      FiscalSemester SMALLINT,
+PRIMARY KEY ( DateKey ))
+;
+
+CREATE SET TABLE DimDepartmentGroup
+     (
+      DepartmentGroupKey INTEGER NOT NULL,
+      ParentDepartmentGroupKey INTEGER,
+      DepartmentGroupName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+PRIMARY KEY ( DepartmentGroupKey ))
+;
+
+CREATE SET TABLE DimEmployee
+     (
+      EmployeeKey INTEGER NOT NULL,
+      ParentEmployeeKey INTEGER,
+      EmployeeNationalIDAlternateKey VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC,
+      ParentEmployeeNationalIDAltKey VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SalesTerritoryKey INTEGER,
+      FirstName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL,
+      LastName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL,
+      MiddleName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      NameStyle BYTEINT CHECK ( NameStyle  IN (0 ,1 ) ) NOT NULL,
+      "Title" VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      HireDate DATE FORMAT 'yyyy-mm-dd',
+      BirthDate DATE FORMAT 'yyyy-mm-dd',
+      LoginID VARCHAR(256) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      EmailAddress VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      Phone VARCHAR(25) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      MaritalStatus CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC,
+      EmergencyContactName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      EmergencyContactPhone VARCHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SalariedFlag BYTEINT CHECK ( SalariedFlag  IN (0 ,1 ) ),
+      Gender CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC,
+      PayFrequency BYTEINT,
+      BaseRate NUMBER(18,4),
+      VacationHours SMALLINT,
+      SickLeaveHours SMALLINT,
+      CurrentFlag BYTEINT CHECK ( CurrentFlag  IN (0 ,1 ) ) NOT NULL,
+      SalesPersonFlag BYTEINT CHECK ( SalesPersonFlag  IN (0 ,1 ) ) NOT NULL,
+      DepartmentName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      StartDate DATE FORMAT 'yyyy-mm-dd',
+      EndDate DATE FORMAT 'yyyy-mm-dd',
+      Status VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      EmployeePhoto BLOB(2097088000),
+PRIMARY KEY ( EmployeeKey ))
+;
+
+CREATE SET TABLE DimGeography
+     (
+      GeographyKey INTEGER NOT NULL,
+      City VARCHAR(30) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      StateProvinceCode VARCHAR(3) CHARACTER SET LATIN NOT CASESPECIFIC,
+      StateProvinceName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      CountryRegionCode VARCHAR(3) CHARACTER SET LATIN NOT CASESPECIFIC,
+      EnglishCountryRegionName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SpanishCountryRegionName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      FrenchCountryRegionName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      PostalCode VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SalesTerritoryKey INTEGER,
+      IpAddressLocator VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC,
+PRIMARY KEY ( GeographyKey ))
+;
+
+CREATE SET TABLE DimOrganization
+     (
+      OrganizationKey INTEGER NOT NULL,
+      ParentOrganizationKey INTEGER,
+      PercentageOfOwnership VARCHAR(16) CHARACTER SET LATIN NOT CASESPECIFIC,
+      OrganizationName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      CurrencyKey INTEGER,
+PRIMARY KEY ( OrganizationKey ))
+;
+
+CREATE SET TABLE DimProduct
+     (
+      ProductKey INTEGER NOT NULL,
+      ProductAlternateKey VARCHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC,
+      ProductSubcategoryKey INTEGER,
+      WeightUnitMeasureCode CHAR(3) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SizeUnitMeasureCode CHAR(3) CHARACTER SET LATIN NOT CASESPECIFIC,
+      EnglishProductName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SpanishProductName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      FrenchProductName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      StandardCost NUMBER(18,4),
+      FinishedGoodsFlag BYTEINT CHECK ( FinishedGoodsFlag  IN (0 ,1 ) ) NOT NULL,
+      Color VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SafetyStockLevel SMALLINT,
+      ReorderPoint SMALLINT,
+      ListPrice NUMBER(18,4),
+      SIZE VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SizeRange VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      Weight NUMBER,
+      DaysToManufacture INTEGER,
+      ProductLine CHAR(2) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      DealerPrice NUMBER(18,4),
+      "Class" CHAR(2) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      STYLE CHAR(2) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      ModelName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      LargePhoto BLOB(2097088000),
+      EnglishDescription VARCHAR(400) CHARACTER SET LATIN NOT CASESPECIFIC,
+      FrenchDescription VARCHAR(400) CHARACTER SET LATIN NOT CASESPECIFIC,
+      ChineseDescription VARCHAR(400) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      ArabicDescription VARCHAR(400) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      HebrewDescription VARCHAR(400) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      ThaiDescription VARCHAR(400) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      GermanDescription VARCHAR(400) CHARACTER SET LATIN NOT CASESPECIFIC,
+      JapaneseDescription VARCHAR(400) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      TurkishDescription VARCHAR(400) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      StartDate DATE FORMAT 'yyyy-mm-dd',
+      EndDate DATE FORMAT 'yyyy-mm-dd',
+      Status VARCHAR(7) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS 'Current',
+PRIMARY KEY ( ProductKey ))
+;
+
+CREATE SET TABLE DimProductCategory
+     (
+      ProductCategoryKey INTEGER NOT NULL,
+      ProductCategoryAlternateKey INTEGER,
+      EnglishProductCategoryName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SpanishProductCategoryName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      FrenchProductCategoryName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+PRIMARY KEY ( ProductCategoryKey ))
+;
+
+CREATE SET TABLE DimProductSubcategory
+     (
+      ProductSubcategoryKey INTEGER NOT NULL,
+      ProductSubcategoryAlternateKey INTEGER,
+      EnglishProductSubcategoryName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SpanishProductSubcategoryName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      FrenchProductSubcategoryName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      ProductCategoryKey INTEGER,
+PRIMARY KEY ( ProductSubcategoryKey ))
+;
+
+CREATE SET TABLE DimPromotion
+     (
+      PromotionKey INTEGER NOT NULL,
+      PromotionAlternateKey INTEGER,
+      EnglishPromotionName VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SpanishPromotionName VARCHAR(255) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      FrenchPromotionName VARCHAR(255) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      DiscountPct NUMBER,
+      EnglishPromotionType VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SpanishPromotionType VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      FrenchPromotionType VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      EnglishPromotionCategory VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SpanishPromotionCategory VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      FrenchPromotionCategory VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      StartDate DATE FORMAT 'yyyy-mm-dd' NOT NULL,
+      EndDate DATE FORMAT 'yyyy-mm-dd',
+      MinQty INTEGER,
+      MaxQty INTEGER,
+PRIMARY KEY ( PromotionKey ))
+;
+
+CREATE SET TABLE DimReseller
+     (
+      ResellerKey INTEGER NOT NULL,
+      GeographyKey INTEGER,
+      ResellerAlternateKey VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC,
+      Phone VARCHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC,
+      BusinessType VARCHAR(20) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      ResellerName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL,
+      NumberEmployees INTEGER,
+      OrderFrequency CHAR(1) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      OrderMonth BYTEINT,
+      FirstOrderYear INTEGER,
+      LastOrderYear INTEGER,
+      ProductLine VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      AddressLine1 VARCHAR(60) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      AddressLine2 VARCHAR(60) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      AnnualSales NUMBER(18,4),
+      BankName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      MinPaymentType BYTEINT,
+      MinPaymentAmount NUMBER(18,4),
+      AnnualRevenue NUMBER(18,4),
+      YearOpened INTEGER,
+PRIMARY KEY ( ResellerKey ))
+;
+
+CREATE SET TABLE DimSalesReason
+     (
+      SalesReasonKey INTEGER NOT NULL,
+      SalesReasonAlternateKey INTEGER NOT NULL,
+      SalesReasonName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SalesReasonReasonType VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+PRIMARY KEY ( SalesReasonKey ))
+;
+
+CREATE SET TABLE DimSalesTerritory
+     (
+      SalesTerritoryKey INTEGER NOT NULL,
+      SalesTerritoryAlternateKey INTEGER,
+      SalesTerritoryRegion VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SalesTerritoryCountry VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SalesTerritoryGroup VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+      SalesTerritoryImage BLOB(2097088000),
+PRIMARY KEY ( SalesTerritoryKey ))
+;
+
+CREATE SET TABLE DimScenario
+     (
+      ScenarioKey INTEGER NOT NULL,
+      ScenarioName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC,
+PRIMARY KEY ( ScenarioKey ))
+;
+
+CREATE SET TABLE FactAdditionalInternationalProductDescription
+     (
+      ProductKey INTEGER NOT NULL,
+      CultureName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      ProductDescription VARCHAR(32000) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL COMPRESS USING TD_SYSFNLIB.TRANSUNICODETOUTF8 DECOMPRESS USING TD_SYSFNLIB.TRANSUTF8TOUNICODE )
+;
+
+CREATE SET TABLE FactCallCenter
+     (
+      FactCallCenterID INTEGER NOT NULL,
+      DateKey INTEGER NOT NULL,
+      WageType VARCHAR(15) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL,
+      Shift VARCHAR(20) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL,
+      LevelOneOperators SMALLINT NOT NULL,
+      LevelTwoOperators SMALLINT NOT NULL,
+      TotalOperators SMALLINT NOT NULL,
+      Calls INTEGER NOT NULL,
+      AutomaticResponses INTEGER NOT NULL,
+      Orders INTEGER NOT NULL,
+      IssuesRaised SMALLINT NOT NULL,
+      AverageTimePerIssue SMALLINT NOT NULL,
+      ServiceGrade NUMBER NOT NULL,
+      "Date" DATE FORMAT 'yyyy-mm-dd',
+PRIMARY KEY ( FactCallCenterID ))
+;
+
+CREATE SET TABLE FactCurrencyRate
+     (
+      CurrencyKey INTEGER NOT NULL,
+      DateKey INTEGER NOT NULL,
+      AverageRate NUMBER NOT NULL,
+      EndOfDayRate NUMBER NOT NULL,
+      "Date" DATE FORMAT 'yyyy-mm-dd',
+PRIMARY KEY ( CurrencyKey ,DateKey ))
+;
+
+CREATE SET TABLE FactFinance
+     (
+      FinanceKey INTEGER NOT NULL,
+      DateKey INTEGER NOT NULL,
+      OrganizationKey INTEGER NOT NULL,
+      DepartmentGroupKey INTEGER NOT NULL,
+      ScenarioKey INTEGER NOT NULL,
+      AccountKey INTEGER NOT NULL,
+      Amount NUMBER NOT NULL,
+      "Date" DATE FORMAT 'yyyy-mm-dd',
+PRIMARY KEY ( FinanceKey ))
+;
+
+CREATE MULTISET TABLE FactInternetSales
+     (
+      ProductKey INTEGER NOT NULL,
+      OrderDateKey INTEGER NOT NULL,
+      DueDateKey INTEGER NOT NULL,
+      ShipDateKey INTEGER NOT NULL,
+      CustomerKey INTEGER NOT NULL,
+      PromotionKey INTEGER NOT NULL,
+      CurrencyKey INTEGER NOT NULL COMPRESS (6 ,19 ,100 ),
+      SalesTerritoryKey INTEGER NOT NULL COMPRESS (1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ),
+      SalesOrderNumber VARCHAR(20) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SalesOrderLineNumber SMALLINT NOT NULL COMPRESS (1 ,2 ,3 ),
+      RevisionNumber BYTEINT NOT NULL COMPRESS 1 ,
+      OrderQuantity SMALLINT NOT NULL COMPRESS 1 ,
+      UnitPrice NUMBER(18,4) NOT NULL,
+      ExtendedAmount NUMBER(18,4) NOT NULL,
+      UnitPriceDiscountPct NUMBER NOT NULL COMPRESS 0 ,
+      DiscountAmount NUMBER NOT NULL COMPRESS 0 ,
+      ProductStandardCost NUMBER(18,4) NOT NULL,
+      TotalProductCost NUMBER(18,4) NOT NULL,
+      SalesAmount NUMBER(18,4) NOT NULL,
+      TaxAmt NUMBER(18,4) NOT NULL,
+      Freight NUMBER(18,4) NOT NULL,
+      CarrierTrackingNumber VARCHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC,
+      CustomerPONumber VARCHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC,
+      OrderDate DATE FORMAT 'yyyy-mm-dd',
+      DueDate DATE FORMAT 'yyyy-mm-dd',
+      ShipDate DATE FORMAT 'yyyy-mm-dd')
+PRIMARY INDEX ( SalesOrderNumber )
+;
+
+CREATE SET TABLE FactInternetSalesReason
+     (
+      SalesOrderNumber VARCHAR(20) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SalesOrderLineNumber SMALLINT NOT NULL COMPRESS (1 ,2 ,3 ),
+      SalesReasonKey INTEGER NOT NULL COMPRESS (1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ))
+PRIMARY INDEX ( SalesOrderNumber )
+;
+
+CREATE SET TABLE FactProductInventory
+     (
+      ProductKey INTEGER NOT NULL,
+      DateKey INTEGER NOT NULL,
+      MovementDate DATE FORMAT 'YYYY-MM-DD' NOT NULL,
+      UnitCost NUMBER(18,4) NOT NULL COMPRESS (.41 ,.18 ,.36 ,.31 ,.26 ,.44 ,.21 ,.39 ,.16 ,.34 ,.29 ,.24 ,.42 ,.19 ,.37 ,.32 ,.27 ,.45 ,.22 ,.4 ,.17 ,.35 ,.3 ,.25 ,.43 ,.2 ,.38 ,.33 ,.51 ,.28 ,.23 ),
+      UnitsIn INTEGER NOT NULL COMPRESS 0 ,
+      UnitsOut INTEGER NOT NULL COMPRESS 0 ,
+      UnitsBalance INTEGER NOT NULL COMPRESS (4 ,52 ,84 ,88 ,875 ,438 ,700 ),
+PRIMARY KEY ( ProductKey ,DateKey ))
+;
+
+CREATE MULTISET TABLE FactResellerSales
+     (
+      ProductKey INTEGER NOT NULL,
+      OrderDateKey INTEGER NOT NULL,
+      DueDateKey INTEGER NOT NULL,
+      ShipDateKey INTEGER NOT NULL,
+      ResellerKey INTEGER NOT NULL,
+      EmployeeKey INTEGER NOT NULL,
+      PromotionKey INTEGER NOT NULL COMPRESS 1 ,
+      CurrencyKey INTEGER NOT NULL COMPRESS (6 ,19 ,100 ),
+      SalesTerritoryKey INTEGER NOT NULL COMPRESS (1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ),
+      SalesOrderNumber VARCHAR(20) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      SalesOrderLineNumber BYTEINT NOT NULL COMPRESS (1 ,2 ,3 ),
+      RevisionNumber BYTEINT COMPRESS 1 ,
+      OrderQuantity SMALLINT COMPRESS (1 ,2 ,3 ,4 ,5 ,6 ,7 ),
+      UnitPrice NUMBER(18,4),
+      ExtendedAmount NUMBER(18,4),
+      UnitPriceDiscountPct NUMBER COMPRESS 0 ,
+      DiscountAmount NUMBER COMPRESS 0 ,
+      ProductStandardCost NUMBER(18,4),
+      TotalProductCost NUMBER(18,4),
+      SalesAmount NUMBER(18,4),
+      TaxAmt NUMBER(18,4),
+      Freight NUMBER(18,4),
+      CarrierTrackingNumber VARCHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC,
+      CustomerPONumber VARCHAR(25) CHARACTER SET LATIN NOT CASESPECIFIC,
+      OrderDate DATE FORMAT 'yyyy-mm-dd',
+      DueDate DATE FORMAT 'yyyy-mm-dd',
+      ShipDate DATE FORMAT 'yyyy-mm-dd')
+PRIMARY INDEX ( SalesOrderNumber )
+;
+
+CREATE SET TABLE FactSalesQuota
+     (
+      SalesQuotaKey INTEGER NOT NULL,
+      EmployeeKey INTEGER NOT NULL,
+      DateKey INTEGER NOT NULL,
+      CalendarYear SMALLINT NOT NULL,
+      CalendarQuarter BYTEINT NOT NULL,
+      SalesAmountQuota NUMBER(18,4) NOT NULL,
+      "Date" DATE FORMAT 'yyyy-mm-dd',
+PRIMARY KEY ( SalesQuotaKey ))
+;
+
+CREATE SET TABLE FactSurveyResponse
+     (
+      SurveyResponseKey INTEGER NOT NULL,
+      DateKey INTEGER NOT NULL,
+      CustomerKey INTEGER NOT NULL,
+      ProductCategoryKey INTEGER NOT NULL,
+      EnglishProductCategoryName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      ProductSubcategoryKey INTEGER NOT NULL,
+      EnglishProductSubcategoryName VARCHAR(50) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      "Date" DATE FORMAT 'yyyy-mm-dd',
+PRIMARY KEY ( SurveyResponseKey ))
+;
+
+CREATE MULTISET TABLE NewFactCurrencyRate
+     (
+      AverageRate NUMBER,
+      CurrencyID VARCHAR(3) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      CurrencyDate DATE FORMAT 'yyyy-mm-dd',
+      EndOfDayRate NUMBER,
+      CurrencyKey INTEGER,
+      DateKey INTEGER)
+PRIMARY INDEX ( CurrencyID ,CurrencyDate )
+;
+
+CREATE SET TABLE ProspectiveBuyer
+     (
+      ProspectiveBuyerKey INTEGER NOT NULL,
+      ProspectAlternateKey VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC,
+      FirstName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      MiddleName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      LastName VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      BirthDate DATE FORMAT 'yyyy-mm-dd',
+      MaritalStatus CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC,
+      Gender CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC,
+      EmailAddress VARCHAR(50) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      YearlyIncome NUMBER(18,4),
+      TotalChildren BYTEINT,
+      NumberChildrenAtHome BYTEINT,
+      Education VARCHAR(40) CHARACTER SET LATIN NOT CASESPECIFIC,
+      Occupation VARCHAR(100) CHARACTER SET LATIN NOT CASESPECIFIC,
+      HouseOwnerFlag CHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC,
+      NumberCarsOwned BYTEINT,
+      AddressLine1 VARCHAR(120) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      AddressLine2 VARCHAR(120) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      City VARCHAR(30) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      StateProvinceCode VARCHAR(3) CHARACTER SET LATIN NOT CASESPECIFIC,
+      PostalCode VARCHAR(15) CHARACTER SET LATIN NOT CASESPECIFIC,
+      Phone VARCHAR(20) CHARACTER SET LATIN NOT CASESPECIFIC,
+      Salutation VARCHAR(8) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      "Unknown" INTEGER,
+PRIMARY KEY ( ProspectiveBuyerKey ))
+;
+
+-- ******************************************************
+-- Load data
+-- ******************************************************
+
+.SET REPEATSTOP ON;
+.SET PACK 5000
+.SET SESSION CHARSET "utf8"
+
+-- Loading DimAccount: 99 rows;
+.IMPORT vartext '|' FILE DimAccount.csv
+.REPEAT *
+USING ("AccountKey" VARCHAR(11), "ParentAccountKey" VARCHAR(11), "AccountCodeAlternateKey" VARCHAR(11), "ParentAccountCodeAlternateKey" VARCHAR(11), "AccountDescription" VARCHAR(50), "AccountType" VARCHAR(50), "Operator" VARCHAR(50), "CustomMembers" VARCHAR(300), "ValueType" VARCHAR(50), "CustomMemberOptions" VARCHAR(200))
+INSERT INTO DimAccount ("AccountKey", "ParentAccountKey", "AccountCodeAlternateKey", "ParentAccountCodeAlternateKey", "AccountDescription", "AccountType", "Operator", "CustomMembers", "ValueType", "CustomMemberOptions")
+VALUES (:"AccountKey", :"ParentAccountKey", :"AccountCodeAlternateKey", :"ParentAccountCodeAlternateKey", :"AccountDescription", :"AccountType", :"Operator", :"CustomMembers", :"ValueType", :"CustomMemberOptions");
+
+-- Loading DimCurrency: 105 rows;
+.IMPORT vartext '|' FILE DimCurrency.csv
+.REPEAT *
+USING ("CurrencyKey" VARCHAR(11), "CurrencyAlternateKey" VARCHAR(3), "CurrencyName" VARCHAR(50))
+INSERT INTO DimCurrency ("CurrencyKey", "CurrencyAlternateKey", "CurrencyName")
+VALUES (:"CurrencyKey", :"CurrencyAlternateKey", :"CurrencyName");
+
+-- Loading DimCustomer: 18484 rows
+.IMPORT vartext '|' FILE DimCustomer.csv
+.REPEAT *
+USING ("CustomerKey" VARCHAR(11), "GeographyKey" VARCHAR(11), "CustomerAlternateKey" VARCHAR(15), "Title" VARCHAR(8), "FirstName" VARCHAR(50), "MiddleName" VARCHAR(50), "LastName" VARCHAR(50), "NameStyle" VARCHAR(4), "BirthDate" VARCHAR(10), "MaritalStatus" VARCHAR(1), "Suffix" VARCHAR(10), "Gender" VARCHAR(1), "EmailAddress" VARCHAR(50), "YearlyIncome" VARCHAR(50), "TotalChildren" VARCHAR(4), "NumberChildrenAtHome" VARCHAR(4), "EnglishEducation" VARCHAR(40), "SpanishEducation" VARCHAR(40), "FrenchEducation" VARCHAR(40), "EnglishOccupation" VARCHAR(100), "SpanishOccupation" VARCHAR(100), "FrenchOccupation" VARCHAR(100), "HouseOwnerFlag" VARCHAR(1), "NumberCarsOwned" VARCHAR(4), "AddressLine1" VARCHAR(120), "AddressLine2" VARCHAR(120), "Phone" VARCHAR(20), "DateFirstPurchase" VARCHAR(10), "CommuteDistance" VARCHAR(15))
+INSERT INTO DimCustomer ("CustomerKey", "GeographyKey", "CustomerAlternateKey", "Title", "FirstName", "MiddleName", "LastName", "NameStyle", "BirthDate", "MaritalStatus", "Suffix", "Gender", "EmailAddress", "YearlyIncome", "TotalChildren", "NumberChildrenAtHome", "EnglishEducation", "SpanishEducation", "FrenchEducation", "EnglishOccupation", "SpanishOccupation", "FrenchOccupation", "HouseOwnerFlag", "NumberCarsOwned", "AddressLine1", "AddressLine2", "Phone", "DateFirstPurchase", "CommuteDistance")
+VALUES (:"CustomerKey", :"GeographyKey", :"CustomerAlternateKey", :"Title", :"FirstName", :"MiddleName", :"LastName", :"NameStyle", :"BirthDate", :"MaritalStatus", :"Suffix", :"Gender", :"EmailAddress", :"YearlyIncome", :"TotalChildren", :"NumberChildrenAtHome", :"EnglishEducation", :"SpanishEducation", :"FrenchEducation", :"EnglishOccupation", :"SpanishOccupation", :"FrenchOccupation", :"HouseOwnerFlag", :"NumberCarsOwned", :"AddressLine1", :"AddressLine2", :"Phone", :"DateFirstPurchase", :"CommuteDistance");
+
+-- Loading DimDate: 3652 rows
+.IMPORT vartext '|' FILE DimDate.csv
+.REPEAT *
+USING ("DateKey" VARCHAR(11), "FullDateAlternateKey" VARCHAR(10), "DayNumberOfWeek" VARCHAR(4), "EnglishDayNameOfWeek" VARCHAR(10), "SpanishDayNameOfWeek" VARCHAR(10), "FrenchDayNameOfWeek" VARCHAR(10), "DayNumberOfMonth" VARCHAR(4), "DayNumberOfYear" VARCHAR(6), "WeekNumberOfYear" VARCHAR(4), "EnglishMonthName" VARCHAR(10), "SpanishMonthName" VARCHAR(10), "FrenchMonthName" VARCHAR(10), "MonthNumberOfYear" VARCHAR(4), "CalendarQuarter" VARCHAR(6), "CalendarYear" VARCHAR(4), "CalendarSemester" VARCHAR(6), "FiscalQuarter" VARCHAR(6), "FiscalYear" VARCHAR(4), "FiscalSemester" VARCHAR(6))
+INSERT INTO DimDate ("DateKey", "FullDateAlternateKey", "DayNumberOfWeek", "EnglishDayNameOfWeek", "SpanishDayNameOfWeek", "FrenchDayNameOfWeek", "DayNumberOfMonth", "DayNumberOfYear", "WeekNumberOfYear", "EnglishMonthName", "SpanishMonthName", "FrenchMonthName", "MonthNumberOfYear", "CalendarQuarter", "CalendarYear", "CalendarSemester", "FiscalQuarter", "FiscalYear", "FiscalSemester")
+VALUES (:"DateKey", :"FullDateAlternateKey", :"DayNumberOfWeek", :"EnglishDayNameOfWeek", :"SpanishDayNameOfWeek", :"FrenchDayNameOfWeek", :"DayNumberOfMonth", :"DayNumberOfYear", :"WeekNumberOfYear", :"EnglishMonthName", :"SpanishMonthName", :"FrenchMonthName", :"MonthNumberOfYear", :"CalendarQuarter", :"CalendarYear", :"CalendarSemester", :"FiscalQuarter", :"FiscalYear", :"FiscalSemester");
+
+-- Loading DimDepartmentGroup: 7 rows
+.IMPORT vartext '|' FILE DimDepartmentGroup.csv
+.REPEAT *
+USING ("DepartmentGroupKey" VARCHAR(11), "ParentDepartmentGroupKey" VARCHAR(11), "DepartmentGroupName" VARCHAR(50))
+INSERT INTO DimDepartmentGroup ("DepartmentGroupKey", "ParentDepartmentGroupKey", "DepartmentGroupName")
+VALUES (:"DepartmentGroupKey", :"ParentDepartmentGroupKey", :"DepartmentGroupName");
+
+-- Loading DimEmployee: 296 rows
+.IMPORT vartext '|' FILE DimEmployee.csv
+.REPEAT *
+USING ("EmployeePhoto" VARCHAR(100), "EmployeeKey" VARCHAR(11), "ParentEmployeeKey" VARCHAR(11), "EmployeeNationalIDAlternateKey" VARCHAR(15), "ParentEmployeeNationalIDAltKey" VARCHAR(15), "SalesTerritoryKey" VARCHAR(11), "FirstName" VARCHAR(100), "LastName" VARCHAR(100), "MiddleName" VARCHAR(100), "NameStyle" VARCHAR(100), "Title" VARCHAR(100), "HireDate" VARCHAR(10), "BirthDate" VARCHAR(10), "LoginID" VARCHAR(512), "EmailAddress" VARCHAR(100), "Phone" VARCHAR(50), "MaritalStatus" VARCHAR(1), "EmergencyContactName" VARCHAR(100), "EmergencyContactPhone" VARCHAR(50), "SalariedFlag" VARCHAR(50), "Gender" VARCHAR(1), "PayFrequency" VARCHAR(4), "BaseRate" VARCHAR(20), "VacationHours" VARCHAR(6), "SickLeaveHours" VARCHAR(6), "CurrentFlag" VARCHAR(4), "SalesPersonFlag" VARCHAR(4), "DepartmentName" VARCHAR(100), "StartDate" VARCHAR(10), "EndDate" VARCHAR(10), "Status" VARCHAR(100))
+INSERT INTO DimEmployee ("EmployeeKey", "ParentEmployeeKey", "EmployeeNationalIDAlternateKey", "ParentEmployeeNationalIDAltKey", "SalesTerritoryKey", "FirstName", "LastName", "MiddleName", "NameStyle", "Title", "HireDate", "BirthDate", "LoginID", "EmailAddress", "Phone", "MaritalStatus", "EmergencyContactName", "EmergencyContactPhone", "SalariedFlag", "Gender", "PayFrequency", "BaseRate", "VacationHours", "SickLeaveHours", "CurrentFlag", "SalesPersonFlag", "DepartmentName", "StartDate", "EndDate", "Status")
+VALUES (:"EmployeeKey", :"ParentEmployeeKey", :"EmployeeNationalIDAlternateKey", :"ParentEmployeeNationalIDAltKey", :"SalesTerritoryKey", :"FirstName", :"LastName", :"MiddleName", :"NameStyle", :"Title", :"HireDate", :"BirthDate", :"LoginID", :"EmailAddress", :"Phone", :"MaritalStatus", :"EmergencyContactName", :"EmergencyContactPhone", :"SalariedFlag", :"Gender", :"PayFrequency", :"BaseRate", :"VacationHours", :"SickLeaveHours", :"CurrentFlag", :"SalesPersonFlag", :"DepartmentName", :"StartDate", :"EndDate", :"Status");
+
+ -- need to split the load due to restrictions for inline BLOBs (can't mix ASCII & UTF8)
+.SET SESSION CHARSET "ascii";
+.IMPORT vartext '|' FILE DimEmployee.csv
+.REPEAT *
+USING ("EmployeePhoto" BLOB(1000000) AS DEFERRED BY NAME , "EmployeeKey" VARCHAR(11), "ParentEmployeeKey" VARCHAR(11), "EmployeeNationalIDAlternateKey" VARCHAR(15), "ParentEmployeeNationalIDAltKey" VARCHAR(15), "SalesTerritoryKey" VARCHAR(11), "FirstName" VARCHAR(100), "LastName" VARCHAR(100), "MiddleName" VARCHAR(100), "NameStyle" VARCHAR(100), "Title" VARCHAR(100), "HireDate" VARCHAR(10), "BirthDate" VARCHAR(10), "LoginID" VARCHAR(512), "EmailAddress" VARCHAR(100), "Phone" VARCHAR(50), "MaritalStatus" VARCHAR(1), "EmergencyContactName" VARCHAR(100), "EmergencyContactPhone" VARCHAR(50), "SalariedFlag" VARCHAR(50), "Gender" VARCHAR(1), "PayFrequency" VARCHAR(4), "BaseRate" VARCHAR(20), "VacationHours" VARCHAR(6), "SickLeaveHours" VARCHAR(6), "CurrentFlag" VARCHAR(4), "SalesPersonFlag" VARCHAR(4), "DepartmentName" VARCHAR(100), "StartDate" VARCHAR(10), "EndDate" VARCHAR(10), "Status" VARCHAR(100))
+UPDATE DimEmployee
+SET "EmployeePhoto" = :"EmployeePhoto"
+WHERE "EmployeeKey" = :"EmployeeKey";
+.SET SESSION CHARSET "utf8"
+
+-- Loading DimGeography: 665 rows
+.IMPORT vartext '|' FILE DimGeography.csv
+.REPEAT *
+USING ("GeographyKey" VARCHAR(11), "City" VARCHAR(30), "StateProvinceCode" VARCHAR(3), "StateProvinceName" VARCHAR(50), "CountryRegionCode" VARCHAR(3), "EnglishCountryRegionName" VARCHAR(50), "SpanishCountryRegionName" VARCHAR(50), "FrenchCountryRegionName" VARCHAR(50), "PostalCode" VARCHAR(15), "SalesTerritoryKey" VARCHAR(11), "IpAddressLocator" VARCHAR(15))
+INSERT INTO DimGeography ("GeographyKey", "City", "StateProvinceCode", "StateProvinceName", "CountryRegionCode", "EnglishCountryRegionName", "SpanishCountryRegionName", "FrenchCountryRegionName", "PostalCode", "SalesTerritoryKey", "IpAddressLocator")
+VALUES (:"GeographyKey", :"City", :"StateProvinceCode", :"StateProvinceName", :"CountryRegionCode", :"EnglishCountryRegionName", :"SpanishCountryRegionName", :"FrenchCountryRegionName", :"PostalCode", :"SalesTerritoryKey", :"IpAddressLocator");
+
+-- Loading DimOrganization 14 rows
+.IMPORT vartext '|' FILE DimOrganization.csv
+.REPEAT *
+USING ("OrganizationKey" VARCHAR(11), "ParentOrganizationKey" VARCHAR(11), "PercentageOfOwnership" VARCHAR(16), "OrganizationName" VARCHAR(50), "CurrencyKey" VARCHAR(11))
+INSERT INTO DimOrganization ("OrganizationKey", "ParentOrganizationKey", "PercentageOfOwnership", "OrganizationName", "CurrencyKey")
+VALUES (:"OrganizationKey", :"ParentOrganizationKey", :"PercentageOfOwnership", :"OrganizationName", :"CurrencyKey");
+
+-- Loading DimProduct: 606 rows
+.IMPORT vartext '|' FILE DimProduct.csv
+.REPEAT *
+USING ("LargePhoto" VARCHAR(100), "ProductKey" VARCHAR(11), "ProductAlternateKey" VARCHAR(25), "ProductSubcategoryKey" VARCHAR(11), "WeightUnitMeasureCode" VARCHAR(3), "SizeUnitMeasureCode" VARCHAR(3), "EnglishProductName" VARCHAR(100), "SpanishProductName" VARCHAR(100), "FrenchProductName" VARCHAR(100), "StandardCost" VARCHAR(20), "FinishedGoodsFlag" VARCHAR(4), "Color" VARCHAR(15), "SafetyStockLevel" VARCHAR(6), "ReorderPoint" VARCHAR(6), "ListPrice" VARCHAR(20), "Size" VARCHAR(50), "SizeRange" VARCHAR(50), "Weight" VARCHAR(50), "DaysToManufacture" VARCHAR(11), "ProductLine" VARCHAR(2), "DealerPrice" VARCHAR(20), "Class" VARCHAR(2), "Style" VARCHAR(2), "ModelName" VARCHAR(50), "EnglishDescription" VARCHAR(1400), "FrenchDescription" VARCHAR(1400), "ChineseDescription" VARCHAR(1400), "ArabicDescription" VARCHAR(1400), "HebrewDescription" VARCHAR(1400), "ThaiDescription" VARCHAR(1400), "GermanDescription" VARCHAR(1400), "JapaneseDescription" VARCHAR(1400), "TurkishDescription" VARCHAR(1400), "StartDate" VARCHAR(10), "EndDate" VARCHAR(10), "Status" VARCHAR(7))
+INSERT INTO DimProduct ("ProductKey", "ProductAlternateKey", "ProductSubcategoryKey", "WeightUnitMeasureCode", "SizeUnitMeasureCode", "EnglishProductName", "SpanishProductName", "FrenchProductName", "StandardCost", "FinishedGoodsFlag", "Color", "SafetyStockLevel", "ReorderPoint", "ListPrice", "Size", "SizeRange", "Weight", "DaysToManufacture", "ProductLine", "DealerPrice", "Class", "Style", "ModelName", "EnglishDescription", "FrenchDescription", "ChineseDescription", "ArabicDescription", "HebrewDescription", "ThaiDescription", "GermanDescription", "JapaneseDescription", "TurkishDescription", "EndDate", "StartDate", "Status")
+VALUES (:"ProductKey", :"ProductAlternateKey", :"ProductSubcategoryKey", :"WeightUnitMeasureCode", :"SizeUnitMeasureCode", :"EnglishProductName", COALESCE(:"SpanishProductName",''), COALESCE(:"FrenchProductName",''), :"StandardCost", :"FinishedGoodsFlag", :"Color", :"SafetyStockLevel", :"ReorderPoint", :"ListPrice", :"Size", :"SizeRange", :"Weight", :"DaysToManufacture", :"ProductLine", :"DealerPrice", :"Class", :"Style", :"ModelName", :"EnglishDescription", :"FrenchDescription", :"ChineseDescription", :"ArabicDescription", :"HebrewDescription", :"ThaiDescription", :"GermanDescription", :"JapaneseDescription", :"TurkishDescription", :"StartDate", :"EndDate", :"Status");
+
+ -- need to split the load due to restrictions for inline BLOBs (can't mix ASCII & UTF8)
+.SET SESSION CHARSET "ascii";
+.IMPORT vartext '|' FILE DimProduct.csv
+.REPEAT *
+USING ("LargePhoto" BLOB(1000000) AS DEFERRED BY NAME, "ProductKey" VARCHAR(11), "ProductAlternateKey" VARCHAR(25), "ProductSubcategoryKey" VARCHAR(11), "WeightUnitMeasureCode" VARCHAR(3), "SizeUnitMeasureCode" VARCHAR(3), "EnglishProductName" VARCHAR(100), "SpanishProductName" VARCHAR(100), "FrenchProductName" VARCHAR(100), "StandardCost" VARCHAR(20), "FinishedGoodsFlag" VARCHAR(4), "Color" VARCHAR(15), "SafetyStockLevel" VARCHAR(6), "ReorderPoint" VARCHAR(6), "ListPrice" VARCHAR(20), "Size" VARCHAR(50), "SizeRange" VARCHAR(50), "Weight" VARCHAR(50), "DaysToManufacture" VARCHAR(11), "ProductLine" VARCHAR(2), "DealerPrice" VARCHAR(20), "Class" VARCHAR(2), "Style" VARCHAR(2), "ModelName" VARCHAR(50), "EnglishDescription" VARCHAR(1400), "FrenchDescription" VARCHAR(1400), "ChineseDescription" VARCHAR(1400), "ArabicDescription" VARCHAR(1400), "HebrewDescription" VARCHAR(1400), "ThaiDescription" VARCHAR(1400), "GermanDescription" VARCHAR(1400), "JapaneseDescription" VARCHAR(1400), "TurkishDescription" VARCHAR(1400), "StartDate" VARCHAR(10), "EndDate" VARCHAR(10), "Status" VARCHAR(7))
+UPDATE DimProduct
+SET "LargePhoto" = :"LargePhoto"
+WHERE "ProductKey" = :"ProductKey";
+.SET SESSION CHARSET "utf8"
+
+-- Loading DimProductCategory: 4 rows
+.IMPORT vartext '|' FILE DimProductCategory.csv
+.REPEAT *
+USING ("ProductCategoryKey" VARCHAR(11), "ProductCategoryAlternateKey" VARCHAR(11), "EnglishProductCategoryName" VARCHAR(50), "SpanishProductCategoryName" VARCHAR(50), "FrenchProductCategoryName" VARCHAR(50))
+INSERT INTO DimProductCategory ("ProductCategoryKey", "ProductCategoryAlternateKey", "EnglishProductCategoryName", "SpanishProductCategoryName", "FrenchProductCategoryName")
+VALUES (:"ProductCategoryKey", :"ProductCategoryAlternateKey", :"EnglishProductCategoryName", :"SpanishProductCategoryName", :"FrenchProductCategoryName");
+
+-- Loading DimProductSubcategory: 37 rows
+.IMPORT vartext '|' FILE DimProductSubcategory.csv
+.REPEAT *
+USING ("ProductSubcategoryKey" VARCHAR(11), "ProductSubcategoryAlternateKey" VARCHAR(11), "EnglishProductSubcategoryName" VARCHAR(50), "SpanishProductSubcategoryName" VARCHAR(50), "FrenchProductSubcategoryName" VARCHAR(50), "ProductCategoryKey" VARCHAR(11))
+INSERT INTO DimProductSubcategory ("ProductSubcategoryKey", "ProductSubcategoryAlternateKey", "EnglishProductSubcategoryName", "SpanishProductSubcategoryName", "FrenchProductSubcategoryName", "ProductCategoryKey")
+VALUES (:"ProductSubcategoryKey", :"ProductSubcategoryAlternateKey", :"EnglishProductSubcategoryName", :"SpanishProductSubcategoryName", :"FrenchProductSubcategoryName", :"ProductCategoryKey");
+
+-- Loading DimPromotion: 16 rows
+.IMPORT vartext '|' FILE DimPromotion.csv
+.REPEAT *
+USING ("PromotionKey" VARCHAR(11), "PromotionAlternateKey" VARCHAR(11), "EnglishPromotionName" VARCHAR(255), "SpanishPromotionName" VARCHAR(255), "FrenchPromotionName" VARCHAR(255), "DiscountPct" VARCHAR(50), "EnglishPromotionType" VARCHAR(50), "SpanishPromotionType" VARCHAR(50), "FrenchPromotionType" VARCHAR(50), "EnglishPromotionCategory" VARCHAR(50), "SpanishPromotionCategory" VARCHAR(50), "FrenchPromotionCategory" VARCHAR(50), "StartDate" VARCHAR(10), "EndDate" VARCHAR(10), "MinQty" VARCHAR(11), "MaxQty" VARCHAR(11))
+INSERT INTO DimPromotion ("PromotionKey", "PromotionAlternateKey", "EnglishPromotionName", "SpanishPromotionName", "FrenchPromotionName", "DiscountPct", "EnglishPromotionType", "SpanishPromotionType", "FrenchPromotionType", "EnglishPromotionCategory", "SpanishPromotionCategory", "FrenchPromotionCategory", "StartDate", "EndDate", "MinQty", "MaxQty")
+VALUES (:"PromotionKey", :"PromotionAlternateKey", :"EnglishPromotionName", :"SpanishPromotionName", :"FrenchPromotionName", :"DiscountPct", :"EnglishPromotionType", :"SpanishPromotionType", :"FrenchPromotionType", :"EnglishPromotionCategory", :"SpanishPromotionCategory", :"FrenchPromotionCategory", :"StartDate", :"EndDate", :"MinQty", :"MaxQty");
+
+-- Loading DimReseller: 701 rows
+.IMPORT vartext '|' FILE DimReseller.csv
+.REPEAT *
+USING ("ResellerKey" VARCHAR(11), "GeographyKey" VARCHAR(11), "ResellerAlternateKey" VARCHAR(15), "Phone" VARCHAR(25), "BusinessType" VARCHAR(20), "ResellerName" VARCHAR(50), "NumberEmployees" VARCHAR(11), "OrderFrequency" VARCHAR(1), "OrderMonth" VARCHAR(4), "FirstOrderYear" VARCHAR(11), "LastOrderYear" VARCHAR(11), "ProductLine" VARCHAR(50), "AddressLine1" VARCHAR(60), "AddressLine2" VARCHAR(60), "AnnualSales" VARCHAR(20), "BankName" VARCHAR(50), "MinPaymentType" VARCHAR(4), "MinPaymentAmount" VARCHAR(20), "AnnualRevenue" VARCHAR(20), "YearOpened" VARCHAR(11))
+INSERT INTO DimReseller ("ResellerKey", "GeographyKey", "ResellerAlternateKey", "Phone", "BusinessType", "ResellerName", "NumberEmployees", "OrderFrequency", "OrderMonth", "FirstOrderYear", "LastOrderYear", "ProductLine", "AddressLine1", "AddressLine2", "AnnualSales", "BankName", "MinPaymentType", "MinPaymentAmount", "AnnualRevenue", "YearOpened")
+VALUES (:"ResellerKey", :"GeographyKey", :"ResellerAlternateKey", :"Phone", :"BusinessType", :"ResellerName", :"NumberEmployees", :"OrderFrequency", :"OrderMonth", :"FirstOrderYear", :"LastOrderYear", :"ProductLine", :"AddressLine1", :"AddressLine2", :"AnnualSales", :"BankName", :"MinPaymentType", :"MinPaymentAmount", :"AnnualRevenue", :"YearOpened");
+
+-- Loading DimSalesReason: 10 rows
+.IMPORT vartext '|' FILE DimSalesReason.csv
+.REPEAT *
+USING ("SalesReasonKey" VARCHAR(11), "SalesReasonAlternateKey" VARCHAR(11), "SalesReasonName" VARCHAR(50), "SalesReasonReasonType" VARCHAR(50))
+INSERT INTO DimSalesReason ("SalesReasonKey", "SalesReasonAlternateKey", "SalesReasonName", "SalesReasonReasonType")
+VALUES (:"SalesReasonKey", :"SalesReasonAlternateKey", :"SalesReasonName", :"SalesReasonReasonType");
+
+-- Loading DimSalesTerritory: 11 rows
+.SET SESSION CHARSET "ascii";
+.IMPORT vartext '|' FILE DimSalesTerritory.csv
+.REPEAT *
+USING ("SalesTerritoryImage" BLOB(1000000) AS DEFERRED BY NAME, "SalesTerritoryKey" VARCHAR(11), "SalesTerritoryAlternateKey" VARCHAR(11), "SalesTerritoryRegion" VARCHAR(50), "SalesTerritoryCountry" VARCHAR(50), "SalesTerritoryGroup" VARCHAR(50))
+INSERT INTO DimSalesTerritory ("SalesTerritoryImage", "SalesTerritoryKey", "SalesTerritoryAlternateKey", "SalesTerritoryRegion", "SalesTerritoryCountry", "SalesTerritoryGroup"
+)
+VALUES (:"SalesTerritoryImage", :"SalesTerritoryKey", :"SalesTerritoryAlternateKey", :"SalesTerritoryRegion", :"SalesTerritoryCountry", :"SalesTerritoryGroup");
+.SET SESSION CHARSET "utf8"
+
+-- Loading DimScenario: 3 rows
+.IMPORT vartext '|' FILE DimScenario.csv
+.REPEAT *
+USING ("ScenarioKey" VARCHAR(11), "ScenarioName" VARCHAR(50))
+INSERT INTO DimScenario ("ScenarioKey", "ScenarioName")
+VALUES (:"ScenarioKey", :"ScenarioName");
+
+-- Loading FactAdditionalInternationalProductDescription: 15168 rows
+.IMPORT vartext '|' FILE FactAdditionalInternationalProductDescription.csv
+.REPEAT *
+USING ("ProductKey" VARCHAR(11), "CultureName" VARCHAR(50), "ProductDescription" VARCHAR(30000))
+INSERT INTO FactAdditionalInternationalProductDescription ("ProductKey", "CultureName", "ProductDescription")
+VALUES (:"ProductKey", :"CultureName", :"ProductDescription");
+
+-- Loading FactCallCenter: 120 rows
+.IMPORT vartext '|' FILE FactCallCenter.csv
+.REPEAT *
+USING ("FactCallCenterID" VARCHAR(11), "DateKey" VARCHAR(11), "WageType" VARCHAR(15), "Shift" VARCHAR(20), "LevelOneOperators" VARCHAR(6), "LevelTwoOperators" VARCHAR(6), "TotalOperators" VARCHAR(6), "Calls" VARCHAR(11), "AutomaticResponses" VARCHAR(11), "Orders" VARCHAR(11), "IssuesRaised" VARCHAR(6), "AverageTimePerIssue" VARCHAR(6), "ServiceGrade" VARCHAR(50), "Date" VARCHAR(10))
+INSERT INTO FactCallCenter ("FactCallCenterID", "DateKey", "WageType", "Shift", "LevelOneOperators", "LevelTwoOperators", "TotalOperators", "Calls", "AutomaticResponses", "Orders", "IssuesRaised", "AverageTimePerIssue", "ServiceGrade", "Date")
+VALUES (:"FactCallCenterID", :"DateKey", :"WageType", :"Shift", :"LevelOneOperators", :"LevelTwoOperators", :"TotalOperators", :"Calls", :"AutomaticResponses", :"Orders", :"IssuesRaised", :"AverageTimePerIssue", :"ServiceGrade", :"Date");
+
+-- Loading FactCurrencyRate: 14264 rows
+.IMPORT vartext '|' FILE FactCurrencyRate.csv
+.REPEAT *
+USING ("CurrencyKey" VARCHAR(11), "DateKey" VARCHAR(11), "AverageRate" VARCHAR(50), "EndOfDayRate" VARCHAR(50), "Date" VARCHAR(10))
+INSERT INTO FactCurrencyRate ("CurrencyKey", "DateKey", "AverageRate", "EndOfDayRate", "Date")
+VALUES (:"CurrencyKey", :"DateKey", :"AverageRate", :"EndOfDayRate", :"Date");
+
+-- Loading FactFinance: 39409 rows
+.IMPORT vartext '|' FILE FactFinance.csv
+.REPEAT *
+USING ("FinanceKey" VARCHAR(11), "DateKey" VARCHAR(11), "OrganizationKey" VARCHAR(11), "DepartmentGroupKey" VARCHAR(11), "ScenarioKey" VARCHAR(11), "AccountKey" VARCHAR(11), "Amount" VARCHAR(50), "Date" VARCHAR(10))
+INSERT INTO FactFinance ("FinanceKey", "DateKey", "OrganizationKey", "DepartmentGroupKey", "ScenarioKey", "AccountKey", "Amount", "Date")
+VALUES (:"FinanceKey", :"DateKey", :"OrganizationKey", :"DepartmentGroupKey", :"ScenarioKey", :"AccountKey", :"Amount", :"Date");
+
+-- Loading FactInternetSales: 60398 rows
+.IMPORT vartext '|' FILE FactInternetSales.csv
+.REPEAT *
+USING ("ProductKey" VARCHAR(11), "OrderDateKey" VARCHAR(11), "DueDateKey" VARCHAR(11), "ShipDateKey" VARCHAR(11), "CustomerKey" VARCHAR(11), "PromotionKey" VARCHAR(11), "CurrencyKey" VARCHAR(11), "SalesTerritoryKey" VARCHAR(11), "SalesOrderNumber" VARCHAR(20), "SalesOrderLineNumber" VARCHAR(6), "RevisionNumber" VARCHAR(4), "OrderQuantity" VARCHAR(6), "UnitPrice" VARCHAR(20), "ExtendedAmount" VARCHAR(20), "UnitPriceDiscountPct" VARCHAR(50), "DiscountAmount" VARCHAR(50), "ProductStandardCost" VARCHAR(20), "TotalProductCost" VARCHAR(20), "SalesAmount" VARCHAR(20), "TaxAmt" VARCHAR(20), "Freight" VARCHAR(20), "CarrierTrackingNumber" VARCHAR(25), "CustomerPONumber" VARCHAR(25), "OrderDate" VARCHAR(10), "DueDate" VARCHAR(10), "ShipDate" VARCHAR(10))
+INSERT INTO FactInternetSales ("ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "CustomerKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "SalesOrderNumber", "SalesOrderLineNumber", "RevisionNumber", "OrderQuantity", "UnitPrice", "ExtendedAmount", "UnitPriceDiscountPct", "DiscountAmount", "ProductStandardCost", "TotalProductCost", "SalesAmount", "TaxAmt", "Freight", "CarrierTrackingNumber", "CustomerPONumber", "OrderDate", "DueDate", "ShipDate")
+VALUES (:"ProductKey", :"OrderDateKey", :"DueDateKey", :"ShipDateKey", :"CustomerKey", :"PromotionKey", :"CurrencyKey", :"SalesTerritoryKey", :"SalesOrderNumber", :"SalesOrderLineNumber", :"RevisionNumber", :"OrderQuantity", :"UnitPrice", :"ExtendedAmount", :"UnitPriceDiscountPct", :"DiscountAmount", :"ProductStandardCost", :"TotalProductCost", :"SalesAmount", :"TaxAmt", :"Freight", :"CarrierTrackingNumber", :"CustomerPONumber", :"OrderDate", :"DueDate", :"ShipDate");
+
+-- Loading FactInternetSalesReason : 64515 rows
+.IMPORT vartext '|' FILE FactInternetSalesReason.csv
+.REPEAT *
+USING ("SalesOrderNumber" VARCHAR(20), "SalesOrderLineNumber" VARCHAR(6), "SalesReasonKey" VARCHAR(11))
+INSERT INTO FactInternetSalesReason ("SalesOrderNumber", "SalesOrderLineNumber", "SalesReasonKey")
+VALUES (:"SalesOrderNumber", :"SalesOrderLineNumber", :"SalesReasonKey");
+
+-- Loading FactProductInventory: 776286 rows
+
+.IMPORT vartext '|' FILE FactProductInventory.csv
+.REPEAT *
+USING ("ProductKey" VARCHAR(11), "DateKey" VARCHAR(11), "MovementDate" VARCHAR(10), "UnitCost" VARCHAR(20), "UnitsIn" VARCHAR(11), "UnitsOut" VARCHAR(11), "UnitsBalance" VARCHAR(11))
+INSERT INTO FactProductInventory ("ProductKey", "DateKey", "MovementDate", "UnitCost", "UnitsIn", "UnitsOut", "UnitsBalance")
+VALUES (:"ProductKey", :"DateKey", :"MovementDate", :"UnitCost", :"UnitsIn", :"UnitsOut", :"UnitsBalance");
+
+-- Loading FactResellerSales: 60855 rows
+.IMPORT vartext '|' FILE FactResellerSales.csv
+.REPEAT *
+USING ("ProductKey" VARCHAR(11), "OrderDateKey" VARCHAR(11), "DueDateKey" VARCHAR(11), "ShipDateKey" VARCHAR(11), "ResellerKey" VARCHAR(11), "EmployeeKey" VARCHAR(11), "PromotionKey" VARCHAR(11), "CurrencyKey" VARCHAR(11), "SalesTerritoryKey" VARCHAR(11), "SalesOrderNumber" VARCHAR(20), "SalesOrderLineNumber" VARCHAR(4), "RevisionNumber" VARCHAR(4), "OrderQuantity" VARCHAR(6), "UnitPrice" VARCHAR(20), "ExtendedAmount" VARCHAR(20), "UnitPriceDiscountPct" VARCHAR(50), "DiscountAmount" VARCHAR(50), "ProductStandardCost" VARCHAR(20), "TotalProductCost" VARCHAR(20), "SalesAmount" VARCHAR(20), "TaxAmt" VARCHAR(20), "Freight" VARCHAR(20), "CarrierTrackingNumber" VARCHAR(25), "CustomerPONumber" VARCHAR(25), "OrderDate" VARCHAR(10), "DueDate" VARCHAR(10), "ShipDate" VARCHAR(10))
+INSERT INTO FactResellerSales ("ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "ResellerKey", "EmployeeKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "SalesOrderNumber", "SalesOrderLineNumber", "RevisionNumber", "OrderQuantity", "UnitPrice", "ExtendedAmount", "UnitPriceDiscountPct", "DiscountAmount", "ProductStandardCost", "TotalProductCost", "SalesAmount", "TaxAmt", "Freight", "CarrierTrackingNumber", "CustomerPONumber", "OrderDate", "DueDate", "ShipDate")
+VALUES (:"ProductKey", :"OrderDateKey", :"DueDateKey", :"ShipDateKey", :"ResellerKey", :"EmployeeKey", :"PromotionKey", :"CurrencyKey", :"SalesTerritoryKey", :"SalesOrderNumber", :"SalesOrderLineNumber", :"RevisionNumber", :"OrderQuantity", :"UnitPrice", :"ExtendedAmount", :"UnitPriceDiscountPct", :"DiscountAmount", :"ProductStandardCost", :"TotalProductCost", :"SalesAmount", :"TaxAmt", :"Freight", :"CarrierTrackingNumber", :"CustomerPONumber", :"OrderDate", :"DueDate", :"ShipDate");
+
+-- Loading FactSalesQuota: 163 rows
+.IMPORT vartext '|' FILE FactSalesQuota.csv
+.REPEAT *
+USING ("SalesQuotaKey" VARCHAR(11), "EmployeeKey" VARCHAR(11), "DateKey" VARCHAR(11), "CalendarYear" VARCHAR(6), "CalendarQuarter" VARCHAR(4), "SalesAmountQuota" VARCHAR(20), "Date" VARCHAR(10))
+INSERT INTO FactSalesQuota ("SalesQuotaKey", "EmployeeKey", "DateKey", "CalendarYear", "CalendarQuarter", "SalesAmountQuota", "Date")
+VALUES (:"SalesQuotaKey", :"EmployeeKey", :"DateKey", :"CalendarYear", :"CalendarQuarter", :"SalesAmountQuota", :"Date");
+
+-- Loading FactSurveyResponse: 2727 rows
+.IMPORT vartext '|' FILE FactSurveyResponse.csv
+.REPEAT *
+USING ("SurveyResponseKey" VARCHAR(11), "DateKey" VARCHAR(11), "CustomerKey" VARCHAR(11), "ProductCategoryKey" VARCHAR(11), "EnglishProductCategoryName" VARCHAR(50), "ProductSubcategoryKey" VARCHAR(11), "EnglishProductSubcategoryName" VARCHAR(50), "Date" VARCHAR(10))
+INSERT INTO FactSurveyResponse ("SurveyResponseKey", "DateKey", "CustomerKey", "ProductCategoryKey", "EnglishProductCategoryName", "ProductSubcategoryKey", "EnglishProductSubcategoryName", "Date")
+VALUES (:"SurveyResponseKey", :"DateKey", :"CustomerKey", :"ProductCategoryKey", :"EnglishProductCategoryName", :"ProductSubcategoryKey", :"EnglishProductSubcategoryName", :"Date");
+
+-- Loading NewFactCurrencyRate: 50 rows
+.IMPORT vartext '|' FILE NewFactCurrencyRate.csv
+.REPEAT *
+USING ("AverageRate" VARCHAR(50), "CurrencyID" VARCHAR(3), "CurrencyDate" VARCHAR(10), "EndOfDayRate" VARCHAR(50), "CurrencyKey" VARCHAR(11), "DateKey" VARCHAR(11))
+INSERT INTO NewFactCurrencyRate ("AverageRate", "CurrencyID", "CurrencyDate", "EndOfDayRate", "CurrencyKey", "DateKey")
+VALUES (:"AverageRate", :"CurrencyID", :"CurrencyDate", :"EndOfDayRate", :"CurrencyKey", :"DateKey");
+
+-- Loading ProspectiveBuyer: 2059 rows
+.IMPORT vartext '|' FILE ProspectiveBuyer.csv
+.REPEAT *
+USING ("ProspectiveBuyerKey" VARCHAR(11), "ProspectAlternateKey" VARCHAR(15), "FirstName" VARCHAR(50), "MiddleName" VARCHAR(50), "LastName" VARCHAR(50), "BirthDate" VARCHAR(10), "MaritalStatus" VARCHAR(1), "Gender" VARCHAR(1), "EmailAddress" VARCHAR(50), "YearlyIncome" VARCHAR(20), "TotalChildren" VARCHAR(4), "NumberChildrenAtHome" VARCHAR(4), "Education" VARCHAR(40), "Occupation" VARCHAR(100), "HouseOwnerFlag" VARCHAR(1), "NumberCarsOwned" VARCHAR(4), "AddressLine1" VARCHAR(120), "AddressLine2" VARCHAR(120), "City" VARCHAR(30), "StateProvinceCode" VARCHAR(3), "PostalCode" VARCHAR(15), "Phone" VARCHAR(20), "Salutation" VARCHAR(8), "Unknown" VARCHAR(11))
+INSERT INTO ProspectiveBuyer ("ProspectiveBuyerKey", "ProspectAlternateKey", "FirstName", "MiddleName", "LastName", "BirthDate", "MaritalStatus", "Gender", "EmailAddress", "YearlyIncome", "TotalChildren", "NumberChildrenAtHome", "Education", "Occupation", "HouseOwnerFlag", "NumberCarsOwned", "AddressLine1", "AddressLine2", "City", "StateProvinceCode", "PostalCode", "Phone", "Salutation", "Unknown")
+VALUES (:"ProspectiveBuyerKey", :"ProspectAlternateKey", :"FirstName", :"MiddleName", :"LastName", :"BirthDate", :"MaritalStatus", :"Gender", :"EmailAddress", :"YearlyIncome", :"TotalChildren", :"NumberChildrenAtHome", :"Education", :"Occupation", :"HouseOwnerFlag", :"NumberCarsOwned", :"AddressLine1", :"AddressLine2", :"City", :"StateProvinceCode", :"PostalCode", :"Phone", :"Salutation", :"Unknown");
+
+
+-- ****************************************
+-- Collect Statistics on PI
+-- ****************************************
+
+COLLECT STATS COLUMN(AccountKey) ON DimAccount;
+COLLECT STATS COLUMN(CurrencyKey) ON DimCurrency;
+COLLECT STATS COLUMN(CustomerKey) ON DimCustomer;
+COLLECT STATS COLUMN(DateKey) ON DimDate;
+COLLECT STATS COLUMN(DepartmentGroupKey) ON DimDepartmentGroup;
+COLLECT STATS COLUMN(EmployeeKey) ON DimEmployee;
+COLLECT STATS COLUMN(GeographyKey) ON DimGeography;
+COLLECT STATS COLUMN(OrganizationKey) ON DimOrganization;
+COLLECT STATS COLUMN(ProductKey) ON DimProduct;
+COLLECT STATS COLUMN(ProductCategoryKey) ON DimProductCategory;
+COLLECT STATS COLUMN(ProductSubcategoryKey) ON DimProductSubcategory;
+COLLECT STATS COLUMN(PromotionKey) ON DimPromotion;
+COLLECT STATS COLUMN(ResellerKey) ON DimReseller;
+COLLECT STATS COLUMN(SalesReasonKey) ON DimSalesReason;
+COLLECT STATS COLUMN(SalesTerritoryKey) ON DimSalesTerritory;
+COLLECT STATS COLUMN(ScenarioKey) ON DimScenario;
+COLLECT STATS COLUMN(ProductKey) ON FactAdditionalInternationalProductDescription;
+COLLECT STATS COLUMN(FactCallCenterID) ON FactCallCenter;
+COLLECT STATS COLUMN(CurrencyKey,DateKey) ON FactCurrencyRate;
+COLLECT STATS COLUMN(FinanceKey) ON FactFinance;
+COLLECT STATS COLUMN(SalesOrderNumber) ON FactInternetSales;
+COLLECT STATS COLUMN(SalesOrderNumber) ON FactInternetSalesReason;
+COLLECT STATS COLUMN(ProductKey,DateKey) ON FactProductInventory;
+COLLECT STATS COLUMN(SalesOrderNumber) ON FactResellerSales;
+COLLECT STATS COLUMN(SalesQuotaKey) ON FactSalesQuota;
+COLLECT STATS COLUMN(SurveyResponseKey) ON FactSurveyResponse;
+COLLECT STATS COLUMN(CurrencyID,CurrencyDate) ON NewFactCurrencyRate;
+COLLECT STATS COLUMN(ProspectiveBuyerKey) ON ProspectiveBuyer;
+
+-- ****************************************
+-- Create Foreign key constraints
+-- ****************************************
+
+ALTER TABLE DimAccount
+ADD CONSTRAINT FK_DimAccount_DimAccount
+FOREIGN KEY (ParentAccountKey) REFERENCES WITH NO CHECK OPTION DimAccount (AccountKey)
+;
+
+ALTER TABLE DimCustomer
+ADD CONSTRAINT FK_DimCustomer_DimGeography
+FOREIGN KEY (GeographyKey) REFERENCES WITH NO CHECK OPTION DimGeography (GeographyKey)
+;
+
+ALTER TABLE DimDepartmentGroup
+ADD CONSTRAINT FK_DimDepartmentGroup_DimDepartmentGroup
+FOREIGN KEY (ParentDepartmentGroupKey) REFERENCES WITH NO CHECK OPTION DimDepartmentGroup (DepartmentGroupKey)
+;
+
+ALTER TABLE DimEmployee
+ADD CONSTRAINT FK_DimEmployee_DimSalesTerritory
+FOREIGN KEY (SalesTerritoryKey) REFERENCES WITH NO CHECK OPTION DimSalesTerritory (SalesTerritoryKey)
+;
+
+ALTER TABLE DimEmployee
+ADD CONSTRAINT FK_DimEmployee_DimEmployee
+FOREIGN KEY (ParentEmployeeKey) REFERENCES WITH NO CHECK OPTION DimEmployee (EmployeeKey)
+;
+
+ALTER TABLE DimGeography
+ADD CONSTRAINT FK_DimGeography_DimSalesTerritory
+FOREIGN KEY (SalesTerritoryKey) REFERENCES WITH NO CHECK OPTION DimSalesTerritory (SalesTerritoryKey)
+;
+
+ALTER TABLE DimOrganization
+ADD CONSTRAINT FK_DimOrganization_DimCurrency
+FOREIGN KEY (CurrencyKey)
+REFERENCES WITH NO CHECK OPTION DimCurrency (CurrencyKey)
+;
+
+ALTER TABLE DimOrganization
+ADD CONSTRAINT FK_DimOrganization_DimOrganization
+FOREIGN KEY (ParentOrganizationKey) REFERENCES WITH NO CHECK OPTION DimOrganization (OrganizationKey)
+;
+
+ALTER TABLE DimProduct
+ADD CONSTRAINT FK_DimProduct_DimProductSubcategory
+FOREIGN KEY (ProductSubcategoryKey) REFERENCES WITH NO CHECK OPTION DimProductSubcategory (ProductSubcategoryKey)
+;
+
+ALTER TABLE DimProductSubcategory
+ADD CONSTRAINT FK_DimProductSubcategory_DimProductCategory
+FOREIGN KEY (ProductCategoryKey) REFERENCES WITH NO CHECK OPTION DimProductCategory (ProductCategoryKey)
+;
+
+ALTER TABLE DimReseller
+ADD CONSTRAINT FK_DimReseller_DimGeography
+FOREIGN KEY (GeographyKey) REFERENCES WITH NO CHECK OPTION DimGeography (GeographyKey)
+;
+
+ALTER TABLE FactCallCenter
+ADD CONSTRAINT FK_FactCallCenter_DimDate
+FOREIGN KEY (DateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactCurrencyRate
+ADD CONSTRAINT FK_FactCurrencyRate_DimDate
+FOREIGN KEY (DateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactCurrencyRate
+ADD CONSTRAINT FK_FactCurrencyRate_DimCurrency
+FOREIGN KEY (CurrencyKey) REFERENCES WITH NO CHECK OPTION DimCurrency (CurrencyKey)
+;
+
+ALTER TABLE FactFinance
+ADD CONSTRAINT FK_FactFinance_DimScenario
+FOREIGN KEY (ScenarioKey) REFERENCES WITH NO CHECK OPTION DimScenario (ScenarioKey)
+;
+
+ALTER TABLE FactFinance
+ADD CONSTRAINT FK_FactFinance_DimOrganization
+FOREIGN KEY (OrganizationKey) REFERENCES WITH NO CHECK OPTION DimOrganization (OrganizationKey)
+;
+
+ALTER TABLE FactFinance
+ADD CONSTRAINT FK_FactFinance_DimDepartmentGroup
+FOREIGN KEY (DepartmentGroupKey) REFERENCES WITH NO CHECK OPTION DimDepartmentGroup (DepartmentGroupKey)
+;
+
+ALTER TABLE FactFinance
+ADD CONSTRAINT FK_FactFinance_DimDate
+FOREIGN KEY (DateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactFinance
+ADD CONSTRAINT FK_FactFinance_DimAccount
+FOREIGN KEY (AccountKey) REFERENCES WITH NO CHECK OPTION DimAccount (AccountKey)
+;
+
+ALTER TABLE FactInternetSales
+ADD CONSTRAINT FK_FactInternetSales_DimCurrency
+FOREIGN KEY (CurrencyKey) REFERENCES WITH NO CHECK OPTION DimCurrency (CurrencyKey)
+;
+
+ALTER TABLE FactInternetSales
+ADD CONSTRAINT FK_FactInternetSales_DimCustomer
+FOREIGN KEY (CustomerKey) REFERENCES WITH NO CHECK OPTION DimCustomer (CustomerKey)
+;
+
+ALTER TABLE FactInternetSales
+ADD CONSTRAINT FK_FactInternetSales_DimDate
+FOREIGN KEY (OrderDateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactInternetSales
+ADD CONSTRAINT FK_FactInternetSales_DimDate1
+FOREIGN KEY (DueDateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactInternetSales
+ADD CONSTRAINT FK_FactInternetSales_DimDate2
+FOREIGN KEY (ShipDateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactInternetSales
+ADD CONSTRAINT FK_FactInternetSales_DimProduct
+FOREIGN KEY (ProductKey) REFERENCES WITH NO CHECK OPTION DimProduct (ProductKey)
+;
+
+ALTER TABLE FactInternetSales
+ADD CONSTRAINT FK_FactInternetSales_DimPromotion
+FOREIGN KEY (PromotionKey) REFERENCES WITH NO CHECK OPTION DimPromotion (PromotionKey)
+;
+
+ALTER TABLE FactInternetSales
+ADD CONSTRAINT FK_FactInternetSales_DimSalesTerritory
+FOREIGN KEY (SalesTerritoryKey) REFERENCES WITH NO CHECK OPTION DimSalesTerritory (SalesTerritoryKey)
+;
+
+ALTER TABLE FactInternetSalesReason
+ADD CONSTRAINT FK_FactInternetSalesReason_FactInternetSales
+FOREIGN KEY (SalesOrderNumber, SalesOrderLineNumber) REFERENCES WITH NO CHECK OPTION FactInternetSales (SalesOrderNumber, SalesOrderLineNumber)
+;
+
+ALTER TABLE FactInternetSalesReason
+ADD CONSTRAINT FK_FactInternetSalesReason_DimSalesReason
+FOREIGN KEY (SalesReasonKey) REFERENCES WITH NO CHECK OPTION DimSalesReason (SalesReasonKey)
+;
+
+ALTER TABLE FactProductInventory
+ADD CONSTRAINT FK_FactProductInventory_DimDate
+FOREIGN KEY (DateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactProductInventory
+ADD CONSTRAINT FK_FactProductInventory_DimProduct
+FOREIGN KEY (ProductKey) REFERENCES WITH NO CHECK OPTION DimProduct (ProductKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimCurrency
+FOREIGN KEY (CurrencyKey) REFERENCES WITH NO CHECK OPTION DimCurrency (CurrencyKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimDate
+FOREIGN KEY (OrderDateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimDate1
+FOREIGN KEY (DueDateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimDate2
+FOREIGN KEY (ShipDateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimEmployee
+FOREIGN KEY (EmployeeKey) REFERENCES WITH NO CHECK OPTION DimEmployee (EmployeeKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimProduct
+FOREIGN KEY (ProductKey) REFERENCES WITH NO CHECK OPTION DimProduct (ProductKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimPromotion
+FOREIGN KEY (PromotionKey) REFERENCES WITH NO CHECK OPTION DimPromotion (PromotionKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimReseller
+FOREIGN KEY (ResellerKey) REFERENCES WITH NO CHECK OPTION DimReseller (ResellerKey)
+;
+
+ALTER TABLE FactResellerSales
+ADD CONSTRAINT FK_FactResellerSales_DimSalesTerritory
+FOREIGN KEY (SalesTerritoryKey) REFERENCES WITH NO CHECK OPTION DimSalesTerritory (SalesTerritoryKey)
+;
+
+ALTER TABLE FactSalesQuota
+ADD CONSTRAINT FK_FactSalesQuota_DimEmployee
+FOREIGN KEY (EmployeeKey) REFERENCES WITH NO CHECK OPTION DimEmployee (EmployeeKey)
+;
+
+ALTER TABLE FactSalesQuota
+ADD CONSTRAINT FK_FactSalesQuota_DimDate
+FOREIGN KEY (DateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactSurveyResponse
+ADD CONSTRAINT FK_FactSurveyResponse_DateKey
+FOREIGN KEY (DateKey) REFERENCES WITH NO CHECK OPTION DimDate (DateKey)
+;
+
+ALTER TABLE FactSurveyResponse
+ADD CONSTRAINT FK_FactSurveyResponse_CustomerKey
+FOREIGN KEY (CustomerKey) REFERENCES WITH NO CHECK OPTION DimCustomer (CustomerKey)
+;
+
+-- ******************************************************
+-- Add database views.
+-- ******************************************************
+
+-- vDMPrep will be used as a data source by the other data mining views. 
+-- Uses DW data at customer, product, day, etc. granularity and
+-- gets region, model, year, month, etc.
+CREATE VIEW vDMPrep
+AS
+    SELECT
+        pc.EnglishProductCategoryName
+        ,COALESCE(p.ModelName, p.EnglishProductName) AS Model
+        ,c.CustomerKey
+        ,s.SalesTerritoryGroup AS Region
+        ,CAST(MONTHS_BETWEEN(CURRENT_DATE,c.BirthDate)/12 AS INT) AS Age
+        ,CASE
+            WHEN c.YearlyIncome < 40000 THEN 'Low'
+            WHEN c.YearlyIncome > 60000 THEN 'High'
+            ELSE 'Moderate'
+        END AS IncomeGroup
+        ,d.CalendarYear
+        ,d.FiscalYear
+        ,d.MonthNumberOfYear AS "Month"
+        ,f.SalesOrderNumber AS OrderNumber
+        ,f.SalesOrderLineNumber AS LineNumber
+        ,f.OrderQuantity AS Quantity
+        ,f.ExtendedAmount AS Amount 
+    FROM
+        FactInternetSales f
+    INNER JOIN DimDate d
+        ON f.OrderDateKey = d.DateKey
+    INNER JOIN DimProduct p
+        ON f.ProductKey = p.ProductKey
+    INNER JOIN DimProductSubcategory psc
+        ON p.ProductSubcategoryKey = psc.ProductSubcategoryKey
+    INNER JOIN DimProductCategory pc
+        ON psc.ProductCategoryKey = pc.ProductCategoryKey
+    INNER JOIN DimCustomer c
+        ON f.CustomerKey = c.CustomerKey
+    INNER JOIN DimGeography g
+        ON c.GeographyKey = g.GeographyKey
+    INNER JOIN DimSalesTerritory s
+        ON g.SalesTerritoryKey = s.SalesTerritoryKey
+;
+
+/****** Object:  View vTimeSeries    Script Date: 7/8/2014 3:09:56 PM ******/
+
+-- vTimeSeries view supports the creation of time series data mining models.
+--      - Replaces earlier bike models with successor models.
+--      - Abbreviates model names to improve readability in mining model viewer
+--      - Concatenates model and region so that table only has one input.
+--      - Creates a date field indexed to monthly reporting date for use in prediction.
+CREATE VIEW vTimeSeries
+AS
+    SELECT
+        CASE Model
+            WHEN 'Mountain-100' THEN 'M200'
+            WHEN 'Road-150' THEN 'R250'
+            WHEN 'Road-650' THEN 'R750'
+            WHEN 'Touring-1000' THEN 'T1000'
+            ELSE SUBSTRING(Model FROM 1 FOR 1) || SUBSTRING(Model FROM CHAR_LENGTH(Model)- 2)
+        END || ' ' || Region AS ModelRegion
+        ,CalendarYear *100 + "Month" AS  TimeIndex
+        ,SUM(Quantity) AS Quantity
+        ,SUM(Amount) AS Amount
+        ,CalendarYear
+        ,"Month"
+        ,CAST((CalendarYear-1900) *10000 + "Month" *100 + 25 AS DATE)
+        AS ReportingDate
+    FROM
+        vDMPrep
+    WHERE
+        Model IN ('Mountain-100', 'Mountain-200', 'Road-150', 'Road-250',
+            'Road-650', 'Road-750', 'Touring-1000')
+    GROUP BY
+        ModelRegion
+        ,TimeIndex
+        ,CalendarYear
+        ,"Month"
+        ,ReportingDate
+;
+
+-- vTargetMail supports targeted mailing data model
+-- Uses vDMPrep to determine if a customer buys a bike and joins to DimCustomer
+CREATE VIEW vTargetMail
+AS
+    SELECT
+        c.CustomerKey,
+        c.GeographyKey,
+        c.CustomerAlternateKey,
+        c."Title",
+        c.FirstName,
+        c.MiddleName,
+        c.LastName,
+        c.NameStyle,
+        c.BirthDate,
+        c.MaritalStatus,
+        c.Suffix,
+        c.Gender,
+        c.EmailAddress,
+        c.YearlyIncome,
+        c.TotalChildren,
+        c.NumberChildrenAtHome,
+        c.EnglishEducation,
+        c.SpanishEducation,
+        c.FrenchEducation,
+        c.EnglishOccupation,
+        c.SpanishOccupation,
+        c.FrenchOccupation,
+        c.HouseOwnerFlag,
+        c.NumberCarsOwned,
+        c.AddressLine1,
+        c.AddressLine2,
+        c.Phone,
+        c.DateFirstPurchase,
+        c.CommuteDistance,
+        x.Region,
+        x.Age,
+        CASE x.Bikes
+            WHEN 0 THEN 0
+            ELSE 1
+        END AS BikeBuyer
+    FROM
+        DimCustomer c INNER JOIN (
+            SELECT
+                CustomerKey
+                ,Region
+                ,Age
+                ,SUM(
+                    CASE EnglishProductCategoryName
+                        WHEN 'Bikes' THEN 1
+                        ELSE 0
+                    END) AS Bikes
+            FROM
+                vDMPrep
+            GROUP BY
+                CustomerKey
+                ,Region
+                ,Age
+            ) AS x
+        ON c.CustomerKey = x.CustomerKey
+;
+
+/* vAssocSeqOrders supports assocation and sequence clustering data mining models.
+      - Limits data to FY2013.
+      - Creates order case table and line item nested table.*/
+CREATE VIEW vAssocSeqOrders
+AS
+SELECT DISTINCT OrderNumber, CustomerKey, Region, IncomeGroup
+FROM         vDMPrep
+WHERE     (FiscalYear = '2013')
+;
+CREATE VIEW vAssocSeqLineItems
+AS
+SELECT     OrderNumber, LineNumber, Model
+FROM         vDMPrep
+WHERE     (FiscalYear = '2013')
+;
+
+
+.SET QUIET OFF;
+
+SELECT CAST(Sum(CurrentPerm) AS INT) AS PermSpace, Cast(TableName AS VARCHAR(45)) AS TableName
+FROM dbc.TableSizeV
+WHERE DatabaseName = DATABASE
+GROUP BY TableName
+ORDER BY TableName
+;
+
+SELECT Current_Timestamp(2) AS "finished loading"
+;

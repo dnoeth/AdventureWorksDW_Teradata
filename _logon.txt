@@ -1,0 +1,5 @@
+.LOGON myTeradata/myUser,myPassword;                  -- modify to match target system
+
+CREATE DATABASE AdventureWorksDW AS PERM = 500e+06;   -- 500 MB, final size should be < 300 MB
+
+DATABASE AdventureWorksDW;
