@@ -19,8 +19,8 @@ bteq < _install.btq > _install.log
 
 ## Installing AdventureWorksDW using a Linux client
 
- 1. Download [AdventureWorksDW_Teradata.zip](https://github.com/dnoeth/AdventureWorksDW_Teradata/releases/download/v1.0/AdventureWorksDW_Teradata.zip) and extract the zip file to a folder, e.g. *`~/Samples/AdventureWorksDW_Teradata`*.
- 2. Modify the file **`_logon.txt`** to match your target system. Optionally modify the database name.
+ 1. Download [AdventureWorksDW_Teradata.zip](https://github.com/dnoeth/AdventureWorksDW_Teradata/releases/download/v1.0/AdventureWorksDW_Teradata.zip) and extract the zip file to a folder, e.g. `~/Samples/AdventureWorksDW_Teradata`.
+ 2. Modify the file `_logon.txt` to match your target system. Optionally modify the database name.
  
  3. Open a *terminal* window, change to the folder and modify the data in three csv files from Windows to Linux path syntax:
 ```
@@ -29,7 +29,7 @@ sed -i 's/\\/\//' DimEmployee.csv
 sed -i 's/\\/\//' DimProduct.csv
 sed -i 's/\\/\//' DimSalesTerritory.csv
 ```
- 4. Then run the file **`_install.btq`** using bteq:
+ 4. Then run the file `_install.btq` using bteq:
 ```
 bteq < _install.btq > _install.log
 ```
@@ -40,7 +40,7 @@ If the install is running without errors you will see this message repeated 30 t
  *** WARNING: OUT OF DATA.
 ```
 
-Otherwise check the **`_install.log`** for errors
+Otherwise check the `_install.log` for errors
 
 ## Reinstalling AdventureWorksDW
 
