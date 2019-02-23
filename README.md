@@ -41,3 +41,18 @@ If the install is running without errors you will see this message repeated 30 t
 ```
 
 Otherwise check the **\_install.log** for errors
+
+## Reinstalling AdventureWorksDW
+
+Before re-running the install script the database must be dropped or all objects removed
+```
+DROP DATABASE AdventureWorksDW;
+or
+DELETE DATABASE AdventureWorksDW;
+```
+
+When the database is not dropped the script will return ae error, but still run successfully:
+```
+*** Failure 5612 A user, database, role, or zone with the specified name already exists.
+```
+
