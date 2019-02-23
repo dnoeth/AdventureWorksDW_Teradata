@@ -1,5 +1,5 @@
 # AdventureWorksDW_Teradata
-A port of Microsoft's [AdventureWorksDW](https://github.com/dnoeth/AdventureWorksDW_Teradata) demo database to Teradata.
+A port of Microsoft's [AdventureWorksDW](https://github.com/Microsoft/sql-server-samples/tree/master/samples/databases/adventure-works/data-warehouse-install-script) demo database to Teradata.
 
 ## Prerequisites
 
