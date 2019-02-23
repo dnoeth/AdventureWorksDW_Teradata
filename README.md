@@ -8,7 +8,7 @@ A port of Microsoft's [AdventureWorksDW](https://github.com/Microsoft/sql-server
   
 ## Installing AdventureWorksDW using a Windows client
 
- 1. Download AdventureWorksDW_Teradata.zip and extract the zip file to a folder, e.g. *C:\Samples\AdventureWorksDW_Teradata*.
+ 1. Download [AdventureWorksDW_Teradata.zip](https://github.com/dnoeth/AdventureWorksDW_Teradata/releases/download/v1.0/AdventureWorksDW_Teradata.zip) and extract the zip file to a folder, e.g. *C:\Samples\AdventureWorksDW_Teradata*.
  2. Modify the file **\_logon.txt** to match your target system. Optionally modify the database name.
  
  3. Open a *cmd* (or *PowerShell*) window, change to the folder and run the file **\_install.btq** using bteq:
@@ -19,7 +19,7 @@ bteq < _install.btq > _install.log
 
 ## Installing AdventureWorksDW using a Linux client
 
- 1. Download AdventureWorksDW_Teradata.zip and extract the zip file to a folder, e.g. *~/Samples/AdventureWorksDW_Teradata*.
+ 1. Download [AdventureWorksDW_Teradata.zip](https://github.com/dnoeth/AdventureWorksDW_Teradata/releases/download/v1.0/AdventureWorksDW_Teradata.zip) and extract the zip file to a folder, e.g. *~/Samples/AdventureWorksDW_Teradata*.
  2. Modify the file **\_logon.txt** to match your target system. Optionally modify the database name.
  
  3. Open a *terminal* window, change to the folder and modify the data in three csv files from Windows to Linux path syntax:
