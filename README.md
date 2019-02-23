@@ -17,7 +17,7 @@ cd C:\Samples\AdventureWorksDW_Teradata
 bteq < _install.btq > _install.log
 ```
 
-## Installing AdventureWorksDW using a Windows client
+## Installing AdventureWorksDW using a Linux client
 
  1. Download AdventureWorksDW_Teradata.zip and extract the zip file to a folder, e.g. *~/Samples/AdventureWorksDW_Teradata*.
  2. Modify the file **\_logon.txt** to match your target system. Optionally modify the database name.
