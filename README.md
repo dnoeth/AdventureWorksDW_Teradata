@@ -7,7 +7,7 @@ A port of Microsoft's [AdventureWorksDW](https://github.com/Microsoft/sql-server
 
  2. The load user needs the `CREATE DATABASE` right in the target database.
   
-## Option 1: Restoring AdventureWorksDW to a TDExpress
+## Option 1: Restoring AdventureWorksDW to a TDExpress 15.10+
 
  1. Download both [AWDWrestore.arc](https://github.com/dnoeth/AdventureWorksDW_Teradata/blob/master/AWDWrestore.arc) (restore script) and [AWDWARC](https://github.com/dnoeth/AdventureWorksDW_Teradata/blob/master/AWDWARC) (database backup) files and copy it to a folder on your TDExpress, e.g. `/tmp`
 
