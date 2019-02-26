@@ -17,7 +17,7 @@ A port of Microsoft's [AdventureWorksDW](https://github.com/Microsoft/sql-server
  CREATE DATABASE AdventureWorksDW AS PERM = 500e+06;
 ```
 
- 3. Modify the file `AWDWrestore.arc` to match your target system.
+ 3. Modify the `AWDWrestore.arc` script to match your target system.
  
  4. Open a *terminal* window and run 
  
