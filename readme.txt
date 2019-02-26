@@ -8,9 +8,39 @@ A port of Microsoft's AdventureWorksDW demo database to Teradata.
 
 Prerequisites
 
-    BTEQ must be installed on your client
-    The load user needs the CREATE DATABASE right in the target database.
+ Either BTEQ must be installed on your client or ARC must be installed on the Teradata system (for TDExpress).
 
+ The load user needs the CREATE DATABASE right in the target database.
+
+
+Option 1: Restoring AdventureWorksDW to a TDExpress
+
+    Download both AWDWrestore.arc and AWDWARC files and copy it to a folder on your TDExpress, e.g. /tmp
+
+    Logon to the Teradata system and create a database:
+ 
+
+       CREATE DATABASE AdventureWorksDW AS PERM = 500e+06;
+
+
+    Modify the file AWDWrestore.arc to match your target system.
+ 
+    Open a *terminal* window and run 
+ 
+       cd /tmp
+       arcmain < AWDWrestore.arc 
+
+    There will be warning message:
+
+        Warning ARC1256:Cross release data restore requires 
+        that one of the following Teradata SQL conversion scripts 
+        be run to complete the restore: post_data_restore.
+		
+    which can be ignored as no conversion is needed.
+
+
+  
+Option 2: Installing AdventureWorksDW using BTEQ
 
 
 Installing AdventureWorksDW using a Windows client
