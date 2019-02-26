@@ -9,7 +9,7 @@ A port of Microsoft's [AdventureWorksDW](https://github.com/Microsoft/sql-server
   
 ## Option 1: Restoring AdventureWorksDW to a TDExpress
 
- 1. Download both [AWDWrestore.arc](https://github.com/dnoeth/AdventureWorksDW_Teradata/blob/master/AWDWrestore.arc) and [AWDWARC](https://github.com/dnoeth/AdventureWorksDW_Teradata/blob/master/AWDWARC) files and copy it to a folder on your TDExpress, e.g. `/tmp`
+ 1. Download both [AWDWrestore.arc](https://github.com/dnoeth/AdventureWorksDW_Teradata/blob/master/AWDWrestore.arc) (restore script) and [AWDWARC](https://github.com/dnoeth/AdventureWorksDW_Teradata/blob/master/AWDWARC) (database backup) files and copy it to a folder on your TDExpress, e.g. `/tmp`
 
  2. Logon to the Teradata system and create a database:
  
